@@ -79,8 +79,24 @@ class RedSocial:
           - si no                   -> la añade EN LAS DOS LISTAS, m += 1, devuelve True
         Coste: O(grado(a)) por la comprobación de duplicado.
         """
-        # TODO: implementar
-        raise NotImplementedError("Ejercicio 1: anadir_amistad")
+        # -----------------------------------------------------
+        if a not in self._nombres or b not in self._nombres:
+            raise ValueError("Alguno o ambos nombres no existen en la red")
+        
+        elif a == b:  
+            raise ValueError("Ambas personas son la misma!!!")
+
+        #Hallamos el indice de ambos:
+        id_a = self._id(a)
+        id_b = self._id(b)
+        if id_a in self._ady[id_b] and id_b in self._ady[id_a]: return False
+
+        #LLegados a este punto, hay que añadir amistad (o corregir si faltara uno en la de otro)
+        if id_a not in self._ady[id_b]: self._ady[id_b].append(a)
+        if id_b not in self._ady[id_a]: self._ady[id_a].append(b)
+        self._m += 1
+        return True
+        
 
     def amigos_en_comun(self, a, b):
         """Amigos de a que también lo son de b, en el orden de la lista de a.
@@ -88,10 +104,19 @@ class RedSocial:
         Pista: pasa los amigos de b a un set y recorre los de a.
         Coste: O(grado(a) + grado(b)) esperado. Nada de dos bucles anidados.
         """
-        # TODO: implementar
-        raise NotImplementedError("Ejercicio 1: amigos_en_comun")
+        res = []
+        v = self._id(a)
+        u = self._id(b)
+        lista_ady_a = self._ady[v]
+        lista_ady_b = self._ady[u]
+        
+        for i in lista_ady_a:
+            if i in lista_ady_b: res.append(self._nombres(i))
+        return res
+
 
     # ------------------------------------------------------------ Ejercicio 2
+    #este es potente, interesante entenderlo -> matamos al tema de grafos y arboles de un tiro
     def etiquetas_de_grupo(self):
         """Lista `grupo` de longitud n: grupo[i] = número del grupo de la persona i.
 
@@ -104,8 +129,21 @@ class RedSocial:
         recursión. Hay un test con una cadena de 100 000 personas.
         Coste: O(n + m).
         """
-        # TODO: implementar
-        raise NotImplementedError("Ejercicio 2: etiquetas_de_grupo")
+        n = self.num_personas()
+        grupo = [-1] * n
+        actual = 0
+        for s in range(n):
+            if grupo[s] != - 1: continue
+            grupo[s] = actual
+            pila = [s]
+            while pila:
+                u = pila.pop()
+                for v in self._ady(u):
+                    if grupo(u) == -1:
+                        grupo[v] = actual
+                        pila.append(v)
+            actual += 1
+        return grupo
 
     def grupos(self):
         """Lista de grupos; cada grupo, la lista de sus nombres por número. O(n + m)."""
@@ -132,8 +170,19 @@ class RedSocial:
         un collections.deque (popleft es O(1); list.pop(0) es O(n)); y se marca
         al METER en la cola. Coste: O(n + m).
         """
-        # TODO: implementar
-        raise NotImplementedError("Ejercicio 3: _bfs")
+        n = len(self._nombres)
+        dist = [-1] * n
+        dist[origen] = 0
+        padre = [-1] * n
+        cola = deque(origen)
+        while cola:
+            u = cola.popleft()
+            for v in self._ady[u]:
+                if dist[v] == -1: 
+                    dist[v] = dist[u] + 1
+                    padre[v] = u
+                    cola.append(v)
+        return dist, padre
 
     def separacion(self, a, b):
         """Grados de separación entre a y b: amistades del camino más corto, -1 si no hay."""
@@ -157,8 +206,9 @@ class RedSocial:
         [a] si a == b; [] si no están conectados. Usa _bfs y sigue `padre`
         hacia atrás desde b; luego dale la vuelta. Coste: O(n + m).
         """
-        # TODO: implementar
-        raise NotImplementedError("Ejercicio 3: cadena")
+        v = self.ady(a)
+        u = self.ady(b)
+        
 
     # -------------------------------------------------------- Ejercicio extra
     def sugerencias(self, nombre):
